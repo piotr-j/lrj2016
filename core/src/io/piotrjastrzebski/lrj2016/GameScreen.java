@@ -13,6 +13,9 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
+import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled;
+import static com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Line;
+
 /**
  * Created by PiotrJ on 07/04/16.
  */
@@ -28,11 +31,10 @@ public class GameScreen extends BaseScreen {
 		ship = assets.ship;
 	}
 
+	boolean drawGrid = true;
 	float speed = 10f;
 	Vector3 position = new Vector3();
 	@Override public void render (float delta) {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		if (Gdx.input.isKeyPressed(Input.Keys.A) || Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 			position.x -= speed * delta;
@@ -45,19 +47,50 @@ public class GameScreen extends BaseScreen {
 		} else if (Gdx.input.isKeyPressed(Input.Keys.S) || Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
 			position.y -= speed * delta;
 		}
+
 		camera.position.set((int)position.x, (int)position.y, 0);
 		camera.update();
 
+		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+		Gdx.gl.glDisable(GL20.GL_BLEND);
+		// draw bg
+		renderer.setProjectionMatrix(camera.combined);
+		renderer.setColor(Color.DARK_GRAY);
+		renderer.begin(Filled);
+		renderer.rect(camera.position.x - 32, camera.position.y - 32, 64, 64);
+		renderer.end();
+		// draw pixel grid
+		if (drawGrid) {
+			renderer.setColor(Color.GRAY);
+			renderer.begin(Line);
+			float cx = camera.position.x - camera.viewportWidth / 2;
+			float cy = camera.position.y - camera.viewportHeight / 2;
+			int width = (int)(camera.viewportWidth) + 2;
+			int height = (int)(camera.viewportHeight) + 2;
+			for (int x = -1; x <= width; x++) {
+				renderer.line(cx + x, cy - 1, cx + x, cy + height);
+			}
+			for (int y = -1; y <= height; y++) {
+				renderer.line(cx - 1, cy + y, cx + width, cy + y);
+			}
+			renderer.end();
+		}
+		// draw game
+		batch.enableBlending();
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		batch.draw(ship, 0, 0);
 		batch.end();
 
+		// draw some debug stuff
 		camera.position.set(position.x, position.y, 0);
 		camera.update();
+
 		Gdx.gl.glEnable(GL20.GL_BLEND);
 		renderer.setProjectionMatrix(camera.combined);
-		renderer.begin(ShapeRenderer.ShapeType.Line);
+		renderer.begin(Line);
 		renderer.setColor(Color.CYAN);
 		renderer.circle(position.x, position.y, 0.25f, 16);
 		renderer.setColor(Color.MAGENTA);
