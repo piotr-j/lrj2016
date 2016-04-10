@@ -263,6 +263,41 @@ public class GameScreen extends BaseScreen {
 		renderer.circle((int)debugPos.x, (int)debugPos.y, 0.25f, 16);
 		renderer.setColor(Color.VIOLET);
 		renderer.rect(vb.x + .5f, vb.y + .5f, vb.width -1f, vb.height -1f);
+		renderer.setColor(Color.CYAN);
+		for (Entity entity : entities) {
+			switch (entity.type) {
+			case Entity.TYPE_PLAYER: {
+				renderer.setColor(Color.CYAN);
+				renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
+			}
+			break;
+			case Entity.TYPE_PLAYER_BULLET: {
+				renderer.setColor(Color.CYAN);
+				renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
+			}
+			break;
+			case Entity.TYPE_ENEMY: {
+				renderer.setColor(Color.RED);
+				switch (entity.facing) {
+				case NORTH:
+				case SOUTH: {
+					renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
+				}
+				break;
+				case EAST:
+				case WEST:
+					renderer.rect(entity.b.x, entity.b.y, entity.b.height, entity.b.width);
+					break;
+				}
+			}
+			break;
+			case Entity.TYPE_ENEMY_BULLEt: {
+				renderer.setColor(Color.RED);
+				renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
+			}
+			break;
+			}
+		}
 		renderer.end();
 	}
 
