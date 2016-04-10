@@ -9,12 +9,15 @@ import com.badlogic.gdx.utils.Disposable;
  */
 public class Assets implements Disposable {
 	public TextureRegion ship;
+	public TextureRegion bullet;
 
 	public Assets () {
 		ship = new TextureRegion(new Texture("ship.png"));
+		bullet = new TextureRegion(new Texture("bullet.png"));
 	}
 
 	@Override public void dispose () {
 		ship.getTexture().dispose();
+		bullet.getTexture().dispose();
 	}
 }
