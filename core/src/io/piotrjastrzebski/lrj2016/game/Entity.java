@@ -28,7 +28,7 @@ public class Entity {
 	public float vx;
 	public float vy;
 	public Facing facing = Facing.NORTH;
-	public TextureRegion asset;
+	public Asset asset;
 	public Array<Cannon> cannons;
 	public float shootCooldown;
 	public float shootTimer;
@@ -46,6 +46,7 @@ public class Entity {
 		entity.vy = 0;
 		entity.vy = 0;
 		entity.facing = Facing.NORTH;
+		Asset.free(entity.asset);
 		entity.asset = null;
 		entity.cannons = null;
 		entity.shootCooldown = 0;

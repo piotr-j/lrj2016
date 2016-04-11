@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import io.piotrjastrzebski.lrj2016.game.Asset;
 import io.piotrjastrzebski.lrj2016.game.Cannon;
 import io.piotrjastrzebski.lrj2016.game.Entity;
 
@@ -35,8 +36,13 @@ public class GameScreen extends BaseScreen {
 
 		Entity player = new Entity();
 		player.type = Entity.TYPE_PLAYER;
-		player.b.set(0, 0, ship.getRegionWidth(), ship.getRegionHeight());
-		player.asset = ship;
+		player.b.set(0, 0, 7, 7);
+		player.asset = Asset.get();
+		player.asset.region = ship;
+		player.asset.xOffset = -3;
+		player.asset.yOffset = -3;
+		player.asset.width = ship.getRegionWidth();
+		player.asset.height = ship.getRegionHeight();
 		player.health = 5;
 		player.speed = 25;
 		player.shootCooldown = .25f;
@@ -67,14 +73,18 @@ public class GameScreen extends BaseScreen {
 		for (Entity.Facing facing : Entity.Facing.values()) {
 			Entity enemy = new Entity();
 			enemy.type = Entity.TYPE_ENEMY;
-			enemy.b.set(x, 16, ship.getRegionWidth(), ship.getRegionHeight());
-			enemy.asset = ship;
+			enemy.b.set(x, 16, 7, 7);
+			enemy.asset = Asset.get();
+			enemy.asset.region = ship;
+			enemy.asset.xOffset = -3;
+			enemy.asset.yOffset = -3;
+			enemy.asset.width = ship.getRegionWidth();
+			enemy.asset.height = ship.getRegionHeight();
 			enemy.health = 5;
 			enemy.facing = facing;
 			entities.add(enemy);
 			x += 16;
 		}
-
 	}
 
 	boolean drawGrid = true;
@@ -124,11 +134,16 @@ public class GameScreen extends BaseScreen {
 								Entity bullet = Entity.get();
 								bullet.type = Entity.TYPE_PLAYER_BULLET;
 								bullet.health = 2;
-								bullet.asset = assets.bullet;
+								bullet.asset = Asset.get();
+								bullet.asset.region = assets.bullet;
+								bullet.asset.xOffset = -1;
+								bullet.asset.yOffset = -1;
+								bullet.asset.width = assets.bullet.getRegionWidth();
+								bullet.asset.height = assets.bullet.getRegionHeight();
 								bullet.b.x = entity.b.x + cannon.xOffset;
 								bullet.b.y = entity.b.y + cannon.yOffset;
-								bullet.b.width = bullet.asset.getRegionWidth();
-								bullet.b.height = bullet.asset.getRegionHeight();
+								bullet.b.width = 1;
+								bullet.b.height = 1;
 								bullet.vy = 25f;
 								entities.add(bullet);
 								break;
@@ -205,45 +220,48 @@ public class GameScreen extends BaseScreen {
 		for (Entity entity : entities) {
 			switch (entity.type) {
 			case Entity.TYPE_PLAYER: {
-				batch.draw(entity.asset, (int)entity.b.x, (int)entity.b.y, entity.b.width, entity.b.height);
+				batch.draw(entity.asset.region,
+					(int)(entity.b.x + entity.asset.xOffset), (int)(entity.b.y + entity.asset.yOffset), entity.asset.width, entity.asset.height);
 			} break;
 			case Entity.TYPE_PLAYER_BULLET: {
-				batch.draw(entity.asset, (int)entity.b.x, (int)entity.b.y, entity.b.width, entity.b.height);
+				batch.draw(entity.asset.region,
+					(int)(entity.b.x + entity.asset.xOffset), (int)(entity.b.y + entity.asset.yOffset), entity.asset.width, entity.asset.height);
 			} break;
 			case Entity.TYPE_ENEMY: {
 				switch (entity.facing) {
 				case NORTH:
-					batch.draw(entity.asset,
-						(int)entity.b.x, (int)entity.b.y,
-						entity.b.width/2, entity.b.height/2,
-						entity.b.width, entity.b.height,
+					batch.draw(entity.asset.region,
+						(int)(entity.b.x + entity.asset.xOffset), (int)(entity.b.y + entity.asset.xOffset),
+						entity.asset.width/2, entity.asset.height/2,
+						entity.asset.width, entity.asset.height,
 						1, 1, 0);
 					break;
 				case EAST:
-					batch.draw(entity.asset,
-						(int)entity.b.x, (int)entity.b.y,
-						entity.b.width/2, entity.b.height/2,
-						entity.b.width, entity.b.height,
+					batch.draw(entity.asset.region,
+						(int)(entity.b.x + entity.asset.xOffset), (int)(entity.b.y + entity.asset.xOffset),
+						entity.asset.width/2, entity.asset.height/2,
+						entity.asset.width, entity.asset.height,
 						1, 1, 90);
 					break;
 				case SOUTH:
-					batch.draw(entity.asset,
-						(int)entity.b.x, (int)entity.b.y,
-						entity.b.width/2, entity.b.height/2,
-						entity.b.width, entity.b.height,
+					batch.draw(entity.asset.region,
+						(int)(entity.b.x + entity.asset.xOffset), (int)(entity.b.y + entity.asset.xOffset),
+						entity.asset.width/2, entity.asset.height/2,
+						entity.asset.width, entity.asset.height,
 						1, 1, 180);
 					break;
 				case WEST:
-					batch.draw(entity.asset,
-						(int)entity.b.x, (int)entity.b.y,
-						entity.b.width/2, entity.b.height/2,
-						entity.b.width, entity.b.height,
+					batch.draw(entity.asset.region,
+						(int)(entity.b.x + entity.asset.xOffset), (int)(entity.b.y + entity.asset.xOffset),
+						entity.asset.width/2, entity.asset.height/2,
+						entity.asset.width, entity.asset.height,
 						1, 1, 270);
 					break;
 				}
 			} break;
 			case Entity.TYPE_ENEMY_BULLEt: {
-				batch.draw(entity.asset, (int)entity.b.x, (int)entity.b.y, entity.b.width, entity.b.height);
+				batch.draw(entity.asset.region,
+					(int)(entity.b.x + entity.asset.xOffset), (int)(entity.b.y + entity.asset.yOffset), entity.asset.width, entity.asset.height);
 			} break;
 			}
 		}
