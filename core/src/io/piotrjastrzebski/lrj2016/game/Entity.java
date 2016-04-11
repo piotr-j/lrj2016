@@ -32,6 +32,8 @@ public class Entity {
 	public Array<Cannon> cannons;
 	public float shootCooldown;
 	public float shootTimer;
+	public float dmgOnHit;
+	public float spawnTimer;
 	public boolean delete;
 
 	public static Entity get () {
@@ -51,6 +53,8 @@ public class Entity {
 		entity.cannons = null;
 		entity.shootCooldown = 0;
 		entity.shootTimer = 0;
+		entity.dmgOnHit = 0;
+		entity.spawnTimer = 0;
 		entity.delete = false;
 	}
 }
