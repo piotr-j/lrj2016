@@ -37,10 +37,8 @@ public class GameScreen extends BaseScreen {
 
 		createPlayer();
 
-		int x = -32;
-		for (Entity.Facing facing : Entity.Facing.values()) {
-			createEnemy(x, 16, facing);
-			x += 16;
+		for (int i = 0; i < 4; i++) {
+			createEnemy(MathUtils.random(-30, 24), MathUtils.random(12, 25), Entity.Facing.SOUTH);
 		}
 	}
 
@@ -59,23 +57,22 @@ public class GameScreen extends BaseScreen {
 		player.shootCooldown = .25f;
 		player.dmgOnHit = 2;
 		player.spawnTimer = 1f;
-		player.cannons = new Array<>();
-		Cannon cannon = new Cannon();
+		Cannon cannon = Cannon.get();
 		cannon.cooldown = player.shootCooldown * 4;
 		cannon.xOffset = 2;
 		cannon.yOffset = 6;
 		player.cannons.add(cannon);
-		cannon = new Cannon();
+		cannon = Cannon.get();
 		cannon.cooldown = player.shootCooldown * 4;
 		cannon.xOffset = 3;
 		cannon.yOffset = 8;
 		player.cannons.add(cannon);
-		cannon = new Cannon();
+		cannon = Cannon.get();
 		cannon.cooldown = player.shootCooldown * 4;
 		cannon.xOffset = 7;
 		cannon.yOffset = 8;
 		player.cannons.add(cannon);
-		cannon = new Cannon();
+		cannon = Cannon.get();
 		cannon.cooldown = player.shootCooldown * 4;
 		cannon.xOffset = 8;
 		cannon.yOffset = 6;
@@ -88,7 +85,7 @@ public class GameScreen extends BaseScreen {
 	}
 
 	protected void createEnemy (int x, int y, Entity.Facing facing) {
-		Entity enemy = new Entity();
+		Entity enemy = Entity.get();
 		enemy.type = Entity.TYPE_ENEMY;
 		enemy.b.set(x, y, 7, 7);
 		enemy.asset = Asset.get();
@@ -100,6 +97,30 @@ public class GameScreen extends BaseScreen {
 		enemy.health = 5;
 		enemy.dmgOnHit = .33f;
 		enemy.facing = facing;
+		enemy.shootCooldown = 2;
+		enemy.shootTimer = MathUtils.random(enemy.shootCooldown);
+
+		Cannon cannon = Cannon.get();
+		cannon.cooldown = enemy.shootCooldown * 4;
+		cannon.xOffset = 2;
+		cannon.yOffset = 6;
+		enemy.cannons.add(cannon);
+		cannon = Cannon.get();
+		cannon.cooldown = enemy.shootCooldown * 4;
+		cannon.xOffset = 3;
+		cannon.yOffset = 8;
+		enemy.cannons.add(cannon);
+		cannon = Cannon.get();
+		cannon.cooldown = enemy.shootCooldown * 4;
+		cannon.xOffset = 7;
+		cannon.yOffset = 8;
+		enemy.cannons.add(cannon);
+		cannon = Cannon.get();
+		cannon.cooldown = enemy.shootCooldown * 4;
+		cannon.xOffset = 8;
+		cannon.yOffset = 6;
+		enemy.cannons.add(cannon);
+
 		entities.add(enemy);
 	}
 
@@ -136,7 +157,7 @@ public class GameScreen extends BaseScreen {
 
 					// shoot
 					entity.shootTimer -= delta;
-					entity.health -= delta * .5f;
+//					entity.health -= delta * .5f;
 
 					for (Cannon cannon : entity.cannons) {
 						cannon.cooldownTimer -= delta;
@@ -168,8 +189,20 @@ public class GameScreen extends BaseScreen {
 							}
 						}
 					}
+					// check collision
+					for (int j = 0; j < entities.size; j++) {
+						Entity other = entities.get(j);
+						if (other.type == Entity.TYPE_ENEMY_BULLET) {
+							if (!other.delete && other.b.overlaps(entity.b)) {
+								entity.health -= other.dmgOnHit;
+								other.delete = true;
+							}
+						}
+					}
 				}
-				vb.set(camera.position.x - camera.viewportWidth / 2, camera.position.y - camera.viewportHeight / 2, camera.viewportWidth, camera.viewportHeight - 5);
+				vb.set(camera.position.x - camera.viewportWidth / 2, camera.position.y - camera.viewportHeight / 2, camera.viewportWidth, camera.viewportHeight);
+
+
 				if (entity.health <= 0) {
 					entities.removeIndex(i);
 					Entity.free(entity);
@@ -180,6 +213,14 @@ public class GameScreen extends BaseScreen {
 //				camera.update();
 			} break;
 			case Entity.TYPE_PLAYER_BULLET: {
+				entity.b.x += entity.vx * delta;
+				entity.b.y += entity.vy * delta;
+				if (!vb.overlaps(entity.b) || entity.delete || entity.health <= 0) {
+					entities.removeIndex(i);
+					Entity.free(entity);
+				}
+			} break;
+			case Entity.TYPE_ENEMY_BULLET: {
 				entity.b.x += entity.vx * delta;
 				entity.b.y += entity.vy * delta;
 				if (!vb.overlaps(entity.b) || entity.delete || entity.health <= 0) {
@@ -209,6 +250,36 @@ public class GameScreen extends BaseScreen {
 					entities.removeIndex(i);
 					Entity.free(entity);
 					createRandomEnemy();
+				} else {
+					entity.shootTimer -= delta;
+					for (Cannon cannon : entity.cannons) {
+						cannon.cooldownTimer -= delta;
+					}
+					if (entity.shootTimer <= 0) {
+						for (Cannon cannon : entity.cannons) {
+							if (cannon.cooldownTimer <= 0) {
+								entity.shootTimer = entity.shootCooldown;
+								cannon.cooldownTimer = cannon.cooldown;
+								Entity bullet = Entity.get();
+								bullet.type = Entity.TYPE_ENEMY_BULLET;
+								bullet.health = 1;
+								bullet.asset = Asset.get();
+								bullet.asset.region = assets.bullet;
+								bullet.asset.xOffset = -1;
+								bullet.asset.yOffset = -1;
+								bullet.asset.width = assets.bullet.getRegionWidth();
+								bullet.asset.height = assets.bullet.getRegionHeight();
+								bullet.b.x = entity.b.x + cannon.xOffset;
+								bullet.b.y = entity.b.y + cannon.yOffset;
+								bullet.b.width = 1;
+								bullet.b.height = 1;
+								bullet.vy = -25f;
+								bullet.dmgOnHit = 1;
+								entities.add(bullet);
+								break;
+							}
+						}
+					}
 				}
 //				if (!vb.overlaps(entity.b)) {
 //					entities.removeIndex(i);
@@ -308,7 +379,7 @@ public class GameScreen extends BaseScreen {
 					break;
 				}
 			} break;
-			case Entity.TYPE_ENEMY_BULLEt: {
+			case Entity.TYPE_ENEMY_BULLET: {
 				batch.draw(entity.asset.region,
 					(int)(entity.b.x + entity.asset.xOffset), (int)(entity.b.y + entity.asset.yOffset), entity.asset.width, entity.asset.height);
 			} break;
@@ -358,7 +429,7 @@ public class GameScreen extends BaseScreen {
 				}
 			}
 			break;
-			case Entity.TYPE_ENEMY_BULLEt: {
+			case Entity.TYPE_ENEMY_BULLET: {
 				renderer.setColor(Color.RED);
 				renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
 			}

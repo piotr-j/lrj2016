@@ -20,7 +20,7 @@ public class Entity {
 	public static final int TYPE_PLAYER = 1;
 	public static final int TYPE_PLAYER_BULLET = 2;
 	public static final int TYPE_ENEMY = 3;
-	public static final int TYPE_ENEMY_BULLEt = 4;
+	public static final int TYPE_ENEMY_BULLET = 4;
 	public int type;
 	public float health;
 	public Rectangle b = new Rectangle();
@@ -29,7 +29,7 @@ public class Entity {
 	public float vy;
 	public Facing facing = Facing.NORTH;
 	public Asset asset;
-	public Array<Cannon> cannons;
+	public Array<Cannon> cannons = new Array<>();
 	public float shootCooldown;
 	public float shootTimer;
 	public float dmgOnHit;
@@ -50,7 +50,10 @@ public class Entity {
 		entity.facing = Facing.NORTH;
 		Asset.free(entity.asset);
 		entity.asset = null;
-		entity.cannons = null;
+		for (Cannon cannon : entity.cannons) {
+			Cannon.free(cannon);
+		}
+		entity.cannons.clear();
 		entity.shootCooldown = 0;
 		entity.shootTimer = 0;
 		entity.dmgOnHit = 0;
