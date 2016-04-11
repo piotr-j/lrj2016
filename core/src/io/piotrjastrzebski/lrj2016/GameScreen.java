@@ -28,6 +28,7 @@ public class GameScreen extends BaseScreen {
 	private TextureRegion ship;
 
 	Array<Entity> entities = new Array<Entity>();
+	private boolean debugDraw = false;
 
 	public GameScreen (LRJGame game) {
 		super(game);
@@ -124,7 +125,7 @@ public class GameScreen extends BaseScreen {
 		entities.add(enemy);
 	}
 
-	boolean drawGrid = true;
+	boolean drawGrid = false;
 
 	Rectangle vb = new Rectangle();
 	Vector3 debugPos = new Vector3();
@@ -388,55 +389,57 @@ public class GameScreen extends BaseScreen {
 
 		batch.end();
 
-		// draw some debug stuff
-		camera.position.set(debugPos.x, debugPos.y, 0);
-		camera.update();
+		if (debugDraw) {
+			// draw some debug stuff
+			camera.position.set(debugPos.x, debugPos.y, 0);
+			camera.update();
 
-		Gdx.gl.glEnable(GL20.GL_BLEND);
-		renderer.setProjectionMatrix(camera.combined);
-		renderer.begin(Line);
-		renderer.setColor(Color.CYAN);
-		renderer.circle(debugPos.x, debugPos.y, 0.25f, 16);
-		renderer.setColor(Color.MAGENTA);
-		renderer.circle((int)debugPos.x, (int)debugPos.y, 0.25f, 16);
-		renderer.setColor(Color.VIOLET);
-		renderer.rect(vb.x + .5f, vb.y + .5f, vb.width -1f, vb.height -1f);
-		renderer.setColor(Color.CYAN);
-		for (Entity entity : entities) {
-			switch (entity.type) {
-			case Entity.TYPE_PLAYER: {
-				renderer.setColor(Color.CYAN);
-				renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
-			}
-			break;
-			case Entity.TYPE_PLAYER_BULLET: {
-				renderer.setColor(Color.CYAN);
-				renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
-			}
-			break;
-			case Entity.TYPE_ENEMY: {
-				renderer.setColor(Color.RED);
-				switch (entity.facing) {
-				case NORTH:
-				case SOUTH: {
+			Gdx.gl.glEnable(GL20.GL_BLEND);
+			renderer.setProjectionMatrix(camera.combined);
+			renderer.begin(Line);
+			renderer.setColor(Color.CYAN);
+			renderer.circle(debugPos.x, debugPos.y, 0.25f, 16);
+			renderer.setColor(Color.MAGENTA);
+			renderer.circle((int)debugPos.x, (int)debugPos.y, 0.25f, 16);
+			renderer.setColor(Color.VIOLET);
+			renderer.rect(vb.x + .5f, vb.y + .5f, vb.width - 1f, vb.height - 1f);
+			renderer.setColor(Color.CYAN);
+			for (Entity entity : entities) {
+				switch (entity.type) {
+				case Entity.TYPE_PLAYER: {
+					renderer.setColor(Color.CYAN);
 					renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
 				}
 				break;
-				case EAST:
-				case WEST:
-					renderer.rect(entity.b.x, entity.b.y, entity.b.height, entity.b.width);
+				case Entity.TYPE_PLAYER_BULLET: {
+					renderer.setColor(Color.CYAN);
+					renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
+				}
+				break;
+				case Entity.TYPE_ENEMY: {
+					renderer.setColor(Color.RED);
+					switch (entity.facing) {
+					case NORTH:
+					case SOUTH: {
+						renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
+					}
 					break;
+					case EAST:
+					case WEST:
+						renderer.rect(entity.b.x, entity.b.y, entity.b.height, entity.b.width);
+						break;
+					}
+				}
+				break;
+				case Entity.TYPE_ENEMY_BULLET: {
+					renderer.setColor(Color.RED);
+					renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
+				}
+				break;
 				}
 			}
-			break;
-			case Entity.TYPE_ENEMY_BULLET: {
-				renderer.setColor(Color.RED);
-				renderer.rect(entity.b.x, entity.b.y, entity.b.width, entity.b.height);
-			}
-			break;
-			}
+			renderer.end();
 		}
-		renderer.end();
 	}
 
 
